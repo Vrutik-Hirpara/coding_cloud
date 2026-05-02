@@ -46,9 +46,9 @@ export const addCourseToCart = (course: CartCourse) => {
   }
 
   // 🔥 RESTRICT TO 1 COURSE
-  if (current.length >= 1) {
-    return { updatedCart: current, added: false, limitReached: true };
-  }
+  // if (current.length >= 1) {
+  //   return { updatedCart: current, added: false, limitReached: true };
+  // }
 
   const updatedCart = [...current, course];
   saveCartItems(updatedCart);

@@ -23,6 +23,13 @@ interface Course {
   category_details?: {
     name: string;
   };
+  category?: {
+    name?: string;
+  } | string;
+  category_name?: string;
+  categories?: Array<{
+    name?: string;
+  }>;
 }
 
 export default function CoursesPage() {
@@ -248,7 +255,7 @@ export default function CoursesPage() {
   // Success State with Courses
   return (
     <div className="mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-20 pt-8 sm:pt-4 lg:pt-4">
-    
+
 
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
@@ -259,30 +266,32 @@ export default function CoursesPage() {
         {type === "kids" ? "Kids Courses" : type === "featured" ? "Featured Courses" : "All Courses"}
       </motion.h1>
 
-      {/* CATEGORY TABS */}
-      <div className="flex flex-wrap justify-center gap-3 mb-10 px-4">
-        <button
-          onClick={() => setSelectedCategory("All")}
-          className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${selectedCategory === "All"
+      {/* CATEGORY TABS — only for non-kids pages */}
+      {type !== "kids" && (
+        <div className="flex flex-wrap justify-center gap-3 mb-10 px-4">
+          <button
+            onClick={() => setSelectedCategory("All")}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${selectedCategory === "All"
               ? "bg-[var(--color-accent-purple)] text-white shadow-md"
               : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-            }`}
-        >
-          All
-        </button>
-        {categories.filter(cat => cat.name !== "Junior Kids Special").map(cat => (
-          <button
-            key={cat.id || cat.name}
-            onClick={() => setSelectedCategory(cat.name)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${selectedCategory === cat.name
-                ? "bg-[var(--color-accent-purple)] text-white shadow-md"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
               }`}
           >
-            {cat.name}
+            All
           </button>
-        ))}
-      </div>
+          {categories.filter(cat => cat.name !== "Junior Kids Special").map(cat => (
+            <button
+              key={cat.id || cat.name}
+              onClick={() => setSelectedCategory(cat.name)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${selectedCategory === cat.name
+                ? "bg-[var(--color-accent-purple)] text-white shadow-md"
+                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                }`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -290,7 +299,48 @@ export default function CoursesPage() {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="flex flex-wrap justify-center gap-4 mx-auto w-full"
       >
-        {(selectedCategory === "All" ? courses : courses.filter(c => c.category_details?.name === selectedCategory)).map((course, index) => {
+        {/* {(selectedCategory === "All" ? courses : courses.filter(c => c.category_details?.name === selectedCategory)).map((course, index) => {
+          const rating = ratings[course.id]?.average_rating || 0;
+          const reviews = ratings[course.id]?.total_reviews || 0;
+
+          return (
+            <CourseCard
+              key={course.id}
+              course={course}
+              rating={rating}
+              reviews={reviews}
+              imageBaseUrl={BASE_URL}
+              index={index}
+              showCategory={true}
+              showRating={true}
+              showStats={true}
+              showDuration={true}
+              showDescription={true}
+            />
+          );
+        })} */}
+        {(selectedCategory === "All"
+          ? courses
+          : courses.filter(course => {
+            // Try to get category name from multiple possible locations
+            let courseCategoryName = null;
+
+            if (course.category_details?.name) {
+              courseCategoryName = course.category_details.name;
+            } else if (typeof course.category === "object" && course.category?.name) {
+              courseCategoryName = course.category.name;
+            } else if (course.category_name) {
+              courseCategoryName = course.category_name;
+            } else if (course.categories && course.categories[0]?.name) {
+              courseCategoryName = course.categories[0].name;
+            } else if (course.category) {
+              // If category is a string directly
+              courseCategoryName = typeof course.category === 'string' ? course.category : null;
+            }
+
+            return courseCategoryName === selectedCategory;
+          })
+        ).map((course, index) => {
           const rating = ratings[course.id]?.average_rating || 0;
           const reviews = ratings[course.id]?.total_reviews || 0;
 
@@ -311,7 +361,7 @@ export default function CoursesPage() {
           );
         })}
       </motion.div>
-        {!type && (
+      {!type && (
         <>
           {/* <FeaturedCoursesSection /> */}
           <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center text-[var(--color-text-strong)] mt-12">

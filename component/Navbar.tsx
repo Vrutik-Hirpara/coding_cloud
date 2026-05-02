@@ -432,7 +432,7 @@ onClick={() => {
                         </span>
                       </p>
                       <Link
-                        href="/courses?type=featured"
+                        href="/courses?kids_course=false"
   onClick={() => setIsCoursesDropdownOpen(false)}
                         className="text-xs font-semibold hover:underline transition-colors"
                         style={{ color: "var(--color-accent-purple)" }}
@@ -1178,7 +1178,14 @@ onClick={() => handleCourseClick(course.slug, "featured")}
                       : "hover:bg-[var(--color-bg-softest)] text-[var(--color-text-medium)]"
                     }`}
                 >
-                  <FaShoppingCart className="text-sm" />
+                  <div className="relative">
+                    <FaShoppingCart className="text-sm" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-[var(--color-accent-purple)] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
                   Cart
                 </Link>
 

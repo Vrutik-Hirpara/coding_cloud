@@ -12,7 +12,6 @@ import BuyCourseModal from "@/component/BuyCourseModal";
 
 // Constants
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
-console.log(RAZORPAY_KEY_ID,"okokrazor")
 
 const getImageUrl = (image?: string) => {
   if (!image) return null;
@@ -95,11 +94,11 @@ export default function CartPage() {
         course_id: JSON.stringify(cartItems)
       };
 
-      console.log("payload", payload);
+      // console.log("payload", payload);
 
       const paymentData = await apiService.createPayment(payload);
 
-      console.log("paymentData", paymentData);
+      // console.log("paymentData", paymentData);
 
       if (!paymentData || !paymentData.data) {
         throw new Error("Invalid payment response");
@@ -107,7 +106,7 @@ export default function CartPage() {
 
       const data = paymentData.data;
 
-    
+
       if (data.checkout_order_id) {
         startRazorpay(data, formData);
         return;
@@ -133,19 +132,19 @@ export default function CartPage() {
         image: "/logos/logo.png",
         order_id: paymentData.checkout_order_id, // Pass the order_id from backend
         handler: async function (response: any) {
-          console.log("Payment Successful:", response,paymentData);
+          // console.log("Payment Successful:", response, paymentData);
 
           try {
             // Verify payment on backend
             // Using paymentData.id as per user's verify_payment api format
             const verifyResult = await apiService.verifyPayment({
-      payment_id: paymentData.payment_id,
-      razorpay_payment_id: response.razorpay_payment_id,
-      razorpay_order_id: response.razorpay_order_id,
-      razorpay_signature: response.razorpay_signature
-    });
+              payment_id: paymentData.payment_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            });
 
-            console.log("verifyResult", verifyResult);
+            // console.log("verifyResult", verifyResult);
 
             if (verifyResult.success) {
               Swal.fire({
@@ -163,10 +162,16 @@ export default function CartPage() {
               window.dispatchEvent(new Event("storage"));
 
               // redirect AFTER success
-              window.location.href = "https://codingcloud.co.in/";
+              setTimeout(() => {
+                window.location.href = "https://codingcloud.co.in/";
+              }, 3000);
+
+
 
             } else {
-              window.location.href = "https://codingcloud.co.in/cart/";
+              setTimeout(() => {
+                window.location.href = "https://codingcloud.co.in/cart/";
+              }, 3000);
             }
 
 
@@ -201,7 +206,32 @@ export default function CartPage() {
           ondismiss: function () {
             setIsProcessing(false);
           }
-        }
+        },
+        method: {
+    upi: true,
+    card: true,
+    netbanking: true,
+    wallet: true,
+  },
+  config: {
+    display: {
+      blocks: {
+        upi: {
+          name: "Pay via UPI",
+          instruments: [
+            {
+              method: "upi",
+              flows: ["collect", "intent"], // 🔥 BOTH
+            },
+          ],
+        },
+      },
+      sequence: ["block.upi", "block.card", "block.netbanking"],
+      preferences: {
+        show_default_blocks: false,
+      },
+    },
+  },
       };
 
       const rzp1 = new (window as any).Razorpay(options);
@@ -420,7 +450,7 @@ export default function CartPage() {
                   </p>
                 </div>
 
-              
+
               </div>
             </div>
           )}
