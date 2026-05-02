@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic"
 
 // 🔥 dynamic metadata
 export async function generateMetadata({ params }: any) {
-  //  const { slug } = await params; 
-  const { slug } = params;
+   const { slug } = await params; 
+  // const { slug } = params;
 
   // 🔥 fetch course
   const res = await fetch(`${BASE_URL}/course/${slug}`, {
